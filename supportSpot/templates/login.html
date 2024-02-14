@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Support Spot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" action="{{ url_for('login') }}">
+        <h1>Login to Support Spot</h1>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <input type="submit" value="Login">
+    </form>
+</body>
+<p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a>.</p>
+</html>
+
