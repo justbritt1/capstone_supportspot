@@ -1,6 +1,6 @@
 
 # Imports
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, render_template
 
 
 app = Flask(__name__)
@@ -29,10 +29,22 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    return 'Welcome to the Dashboard!'
+    # Simulate data for the dashboard (replace with real data retrieval logic)
+    user_count = len(users)  # Assuming 'users' is a list of registered users
+
+    # Additional data or logic for the dashboard
+    # ...
+
+    return render_template('dashboard.html', user_count=user_count)
+
+@app.route('/shelters')
+def shelters():
+    # Retrieve shelter names (replace with real data retrieval logic)
+    shelter_names = ["Shelter A", "Shelter B", "Shelter C"]  # Example data
+
+    return render_template('shelters.html', shelter_names=shelter_names)
 
 @app.route('/register', methods=['GET', 'POST'])
-
 def register():
     if request.method == 'POST':
         username = request.form['username']
