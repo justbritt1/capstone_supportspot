@@ -1,19 +1,21 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 class Shelter(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    shelter_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(255), nullable=False)
-    # Add more columns as needed
+    capacity = db.Column(db.Integer)
+    location = db.Column(db.String(255), nullable=False)
 
 class FoodBank(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    foodbank_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(255), nullable=False)
-    # Add more columns as needed
+    capacity = db.Column(db.Integer)
+    location = db.Column(db.String(255), nullable=False)
 
 class MentalHealthFacility(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    facility_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    address = db.Column(db.String(255), nullable=False)
-    # Add more columns as needed
+    specialization = db.Column(db.String(255))
+    location = db.Column(db.String(255), nullable=False)

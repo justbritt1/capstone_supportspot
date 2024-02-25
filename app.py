@@ -1,16 +1,22 @@
 
 # Imports
 from flask import Flask, render_template, request, redirect, url_for, flash 
-from flask_sqlalchemy import SQLAlchemy
-from models import Shelter, FoodBank, MentalHealthFacility
+
+from models import db, Shelter, FoodBank, MentalHealthFacility
 
 app = Flask(__name__)
 
-# Configure the MySQL database (replace 'your_database_uri' with your actual database URI)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/your_database'
+# MySQL workbench credentials
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:password1993@localhost/resourcelocator'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db.init_app(app)
+
+# Create database tables
+@app.before_first_request
+def create_tables():
+    with app.app_context():
+        db.create_all()
 
 @app.route('/')
 def index():
@@ -53,12 +59,17 @@ def shelters():
 
 @app.route('/food_banks')
 def food_banks():
-    # Retrieve food bank names (replace with real data retrieval logic)
-    food_bank_names = ["Food Bank X", "Food Bank Y", "Food Bank Z"]  # Example data
+    # Retrieve food bank names from the database
+    food_banks = FoodBank.query.all()
 
-    return render_template('foodbank.html', food_bank_names=food_bank_names)
+    return render_template('food_banks.html', food_banks=food_banks)
 
+@app.route('/mental_health')
+def mental_health():
+    # Retrieve mental health facilities (replace with real data retrieval logic)
+    mental_health_facilities = MentalHealthFacility.query.all()
 
+    return render_template('mental_health.html', mental_health_facilities=mental_health_facilities)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -76,11 +87,6 @@ def register():
     return render_template('register.html')
 
 users = []
-
-# Create database tables
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 
 if __name__ == '__main__':

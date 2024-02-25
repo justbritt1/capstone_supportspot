@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Head content -->
+    <title>Mental Health Facilities</title>
+</head>
+<body>
+    <h1>List of Mental Health Facilities</h1>
+    <ul>
+        {% for facility in mental_health_facilities %}
+            <li>
+                <strong>{{ facility.name }}</strong>
+                <p>Specialization: {{ facility.specialization }}</p>
+                <p>Location: {{ facility.location }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <!-- Additional content or features go here -->
+</body>
+</html>
