@@ -12,11 +12,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-# Create database tables
-@app.before_first_request
+
+        
+@app.before_request
 def create_tables():
-    with app.app_context():
-        db.create_all()
+    # The following line will remove this handler, making it
+    # only run on the first request
+    app.before_request_funcs[None].remove(create_tables)
+
+    db.create_all()
 
 @app.route('/')
 def index():
