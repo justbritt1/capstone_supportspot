@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <!-- Head content -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Banks</title>
 </head>
+
 <body>
-    <h1>List of Food Banks</h1>
+    <h1>Food Banks</h1>
     <ul>
         {% for food_bank in food_banks %}
-            <li>
-                <strong>{{ food_bank.name }}</strong>
-                <p>Capacity: {{ food_bank.capacity }}</p>
-                <p>Location: {{ food_bank.location }}</p>
-            </li>
+        <li>
+            <strong>Name:</strong> {{ food_bank.name }}<br>
+            <strong>Capacity:</strong> {{ food_bank.capacity }}<br>
+            <strong>Location:</strong> {{ food_bank.location }}<br>
+            <strong>Contact Phone:</strong> {{ food_bank.contact_phone }}<br>
+        </li>
         {% endfor %}
     </ul>
-    <!-- Additional content or features go here -->
+    <p><a href="{{ url_for('admin') }}">Back to Admin</a></p>
 </body>
+
 </html>

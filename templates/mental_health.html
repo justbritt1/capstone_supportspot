@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <!-- Head content -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Health Facilities</title>
 </head>
+
 <body>
-    <h1>List of Mental Health Facilities</h1>
+    <h1>Mental Health Facilities</h1>
     <ul>
         {% for facility in mental_health_facilities %}
-            <li>
-                <strong>{{ facility.name }}</strong>
-                <p>Specialization: {{ facility.specialization }}</p>
-                <p>Location: {{ facility.location }}</p>
-            </li>
+        <li>
+            <strong>Name:</strong> {{ facility.name }}<br>
+            <strong>Specialization:</strong> {{ facility.specialization }}<br>
+            <strong>Location:</strong> {{ facility.location }}<br>
+            <strong>Contact Phone:</strong> {{ facility.contact_phone }}<br>
+        </li>
         {% endfor %}
     </ul>
-    <!-- Additional content or features go here -->
+    <p><a href="{{ url_for('admin') }}">Back to Admin</a></p>
 </body>
+
 </html>
