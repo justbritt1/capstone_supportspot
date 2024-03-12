@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
+
 
 class Shelter(db.Model):
     shelter_id = db.Column(db.Integer, primary_key=True, autoincrement=True)

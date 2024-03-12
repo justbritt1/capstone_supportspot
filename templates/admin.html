@@ -9,60 +9,68 @@
 <body>
     <h1>Admin Page</h1>
 
-    <h2>Add Shelter</h2>
-    <form method="POST">
-        {{ shelter_form.hidden_tag() }}
-        {{ shelter_form.name.label }} {{ shelter_form.name }}
-        {{ shelter_form.capacity.label }} {{ shelter_form.capacity }}
-        {{ shelter_form.location.label }} {{ shelter_form.location }}
-        {{ shelter_form.contact_phone.label }} {{ shelter_form.contact_phone }}
-        {{ shelter_form.submit }}
-    </form>
+    <!-- Add Shelter Form -->
+<h2>Add Shelter</h2>
+<form method="POST" action="{{ url_for('add_shelter') }}">
+    {{ shelter_form.hidden_tag() }}
+    {{ shelter_form.name.label }} {{ shelter_form.name }}
+    {{ shelter_form.capacity.label }} {{ shelter_form.capacity }}
+    {{ shelter_form.location.label }} {{ shelter_form.location }}
+    {{ shelter_form.contact_phone.label }} {{ shelter_form.contact_phone }}
+    {{ shelter_form.submit }}
+</form>
 
-    <h2>Shelters</h2>
-    <ul>
-        {% for shelter in shelters %}
-            <li>{{ shelter.name }} - Capacity: {{ shelter.capacity }} - Location: {{ shelter.location }} - Contact Phone: {{ shelter.contact_phone }}</li>
-        {% endfor %}
-    </ul>
+<!-- Shelters List -->
+<h2>Shelters</h2>
+<ul>
+    {% for shelter in shelters %}
+        <li>
+            {{ shelter.name }} - Capacity: {{ shelter.capacity }} - Location: {{ shelter.location }} - Contact Phone: {{ shelter.contact_phone }}
+        </li>
+    {% endfor %}
+</ul>
 
-    <hr>
+<!-- Add Food Bank Form -->
+<h2>Add Food Bank</h2>
+<form method="POST" action="{{ url_for('add_food_bank') }}">
+    {{ food_bank_form.hidden_tag() }}
+    {{ food_bank_form.name.label }} {{ food_bank_form.name }}
+    {{ food_bank_form.capacity.label }} {{ food_bank_form.capacity }}
+    {{ food_bank_form.location.label }} {{ food_bank_form.location }}
+    {{ food_bank_form.contact_phone.label }} {{ food_bank_form.contact_phone }}
+    {{ food_bank_form.submit }}
+</form>
 
-    <h2>Add Food Bank</h2>
-    <form method="POST">
-        {{ food_bank_form.hidden_tag() }}
-        {{ food_bank_form.name.label }} {{ food_bank_form.name }}
-        {{ food_bank_form.capacity.label }} {{ food_bank_form.capacity }}
-        {{ food_bank_form.location.label }} {{ food_bank_form.location }}
-        {{ food_bank_form.contact_phone.label }} {{ food_bank_form.contact_phone }}
-        {{ food_bank_form.submit }}
-    </form>
+<!-- Food Banks List -->
+<h2>Food Banks</h2>
+<ul>
+    {% for food_bank in food_banks %}
+        <li>
+            {{ food_bank.name }} - Capacity: {{ food_bank.capacity }} - Location: {{ food_bank.location }} - Contact Phone: {{ food_bank.contact_phone }}
+        </li>
+    {% endfor %}
+</ul>
 
-    <h2>Food Banks</h2>
-    <ul>
-        {% for food_bank in food_banks %}
-            <li>{{ food_bank.name }} - Capacity: {{ food_bank.capacity }} - Location: {{ food_bank.location }} - Contact Phone: {{ food_bank.contact_phone }}</li>
-        {% endfor %}
-    </ul>
+<!-- Add Mental Health Facility Form -->
+<h2>Add Mental Health Facility</h2>
+<form method="POST" action="{{ url_for('add_mental_health') }}">
+    {{ mental_health_form.hidden_tag() }}
+    {{ mental_health_form.name.label }} {{ mental_health_form.name }}
+    {{ mental_health_form.specialization.label }} {{ mental_health_form.specialization }}
+    {{ mental_health_form.location.label }} {{ mental_health_form.location }}
+    {{ mental_health_form.contact_phone.label }} {{ mental_health_form.contact_phone }}
+    {{ mental_health_form.submit }}
+</form>
 
-    <hr>
-
-    <h2>Add Mental Health Facility</h2>
-    <form method="POST">
-        {{ mental_health_form.hidden_tag() }}
-        {{ mental_health_form.name.label }} {{ mental_health_form.name }}
-        {{ mental_health_form.specialization.label }} {{ mental_health_form.specialization }}
-        {{ mental_health_form.location.label }} {{ mental_health_form.location }}
-        {{ mental_health_form.contact_phone.label }} {{ mental_health_form.contact_phone }}
-        {{ mental_health_form.submit }}
-    </form>
-
-    <h2>Mental Health Facilities</h2>
-    <ul>
-        {% for mental_health_facility in mental_health_facilities %}
-            <li>{{ mental_health_facility.name }} - Specialization: {{ mental_health_facility.specialization }} - Location: {{ mental_health_facility.location }} - Contact Phone: {{ mental_health_facility.contact_phone }}</li>
-        {% endfor %}
-    </ul>
+<!-- Mental Health Facilities List -->
+<h2>Mental Health Facilities</h2>
+<ul>
+    {% for mental_health_facility in mental_health_facilities %}
+        <li>
+            {{ mental_health_facility.name }} - Specialization: {{ mental_health_facility.specialization }} - Location: {{ mental_health_facility.location }} - Contact Phone: {{ mental_health_facility.contact_phone }}
+        </li>
+    {% endfor %}
+</ul>
 
 </body>
 </html>

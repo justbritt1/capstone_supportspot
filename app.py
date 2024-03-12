@@ -36,44 +36,55 @@ def admin():
 
     if request.method == 'POST':
         if shelter_form.validate_on_submit():
-            shelter = Shelter(
-                name=shelter_form.name.data,
-                capacity=shelter_form.capacity.data,
-                location=shelter_form.location.data,
-                contact_phone=shelter_form.contact_phone.data
-            )
-            db.session.add(shelter)
-            db.session.commit()
-
+            add_shelter(shelter_form)
         elif food_bank_form.validate_on_submit():
-            food_bank = FoodBank(
-                name=food_bank_form.name.data,
-                capacity=food_bank_form.capacity.data,
-                location=food_bank_form.location.data,
-                contact_phone=food_bank_form.contact_phone.data
-            )
-            db.session.add(food_bank)
-            db.session.commit()
-
+            add_food_bank(food_bank_form)
         elif mental_health_form.validate_on_submit():
-            mental_health = MentalHealthFacility(
-                name=mental_health_form.name.data,
-                specialization=mental_health_form.specialization.data,
-                location=mental_health_form.location.data,
-                contact_phone=mental_health_form.contact_phone.data
-            )
-            db.session.add(mental_health)
-            db.session.commit()
+            add_mental_health(mental_health_form)
 
-        
         return redirect(url_for('admin'))
 
     shelters = Shelter.query.all()
     food_banks = FoodBank.query.all()
     mental_health_facilities = MentalHealthFacility.query.all()
 
-    return render_template('admin.html', shelter_form=shelter_form, food_bank_form=food_bank_form, mental_health_form=mental_health_form, shelters=shelters, food_banks=food_banks, mental_health_facilities=mental_health_facilities)
+    return render_template('admin.html', shelter_form=shelter_form, food_bank_form=food_bank_form,
+                           mental_health_form=mental_health_form, shelters=shelters,
+                           food_banks=food_banks, mental_health_facilities=mental_health_facilities)
 
+
+def add_shelter(shelter_form):
+    shelter = Shelter(
+        name=shelter_form.name.data,
+        capacity=shelter_form.capacity.data,
+        location=shelter_form.location.data,
+        contact_phone=shelter_form.contact_phone.data
+    )
+    db.session.add(shelter)
+    db.session.commit()
+
+
+def add_food_bank(food_bank_form):
+    food_bank = FoodBank(
+        name=food_bank_form.name.data,
+        capacity=food_bank_form.capacity.data,
+        location=food_bank_form.location.data,
+        contact_phone=food_bank_form.contact_phone.data
+    )
+    db.session.add(food_bank)
+    db.session.commit()
+
+
+def add_mental_health(mental_health_form):
+    mental_health = MentalHealthFacility(
+        name=mental_health_form.name.data,
+        specialization=mental_health_form.specialization.data,
+        location=mental_health_form.location.data,
+        contact_phone=mental_health_form.contact_phone.data
+    )
+    db.session.add(mental_health)
+    db.session.commit()
+    
 @app.route('/')
 def index():
     return render_template('login.html')
