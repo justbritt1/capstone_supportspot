@@ -3,8 +3,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from forms import ShelterForm, FoodBankForm, MentalHealthForm
-from models import db, Shelter, FoodBank, MentalHealthFacility
+from forms import AddDataForm
+from models import db, Resource
 
 app = Flask(__name__)
 
@@ -30,60 +30,36 @@ def create_tables():
 # Route for the admin page
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    shelter_form = ShelterForm()
-    food_bank_form = FoodBankForm()
-    mental_health_form = MentalHealthForm()
+    add_data_form = AddDataForm()
 
     if request.method == 'POST':
-        if shelter_form.validate_on_submit():
-            add_shelter(shelter_form)
-        elif food_bank_form.validate_on_submit():
-            add_food_bank(food_bank_form)
-        elif mental_health_form.validate_on_submit():
-            add_mental_health(mental_health_form)
+        if add_data_form.validate_on_submit():
+            table_type = add_data_form.table_type.data
+            name = add_data_form.name.data
+            capacity = add_data_form.capacity.data
+            location = add_data_form.location.data
+            contact_phone = add_data_form.contact_phone.data
+            specialization = add_data_form.specialization.data
 
-        return redirect(url_for('admin'))
+        # Create a new resource entry based on the selected type
+            resource = Resource(
+                table_type=table_type,
+                name=name,
+                capacity=capacity,
+                location=location,
+                contact_phone=contact_phone,
+                specialization=specialization
+            )
+            db.session.add(resource)
+            db.session.commit()
 
-    shelters = Shelter.query.all()
-    food_banks = FoodBank.query.all()
-    mental_health_facilities = MentalHealthFacility.query.all()
+            return redirect(url_for('admin'))
 
-    return render_template('admin.html', shelter_form=shelter_form, food_bank_form=food_bank_form,
-                           mental_health_form=mental_health_form, shelters=shelters,
-                           food_banks=food_banks, mental_health_facilities=mental_health_facilities)
+    # Fetch all resources to display in the admin page
+    resources = Resource.query.all()
 
+    return render_template('admin.html', add_data_form=add_data_form, resources=resources)
 
-def add_shelter(shelter_form):
-    shelter = Shelter(
-        name=shelter_form.name.data,
-        capacity=shelter_form.capacity.data,
-        location=shelter_form.location.data,
-        contact_phone=shelter_form.contact_phone.data
-    )
-    db.session.add(shelter)
-    db.session.commit()
-
-
-def add_food_bank(food_bank_form):
-    food_bank = FoodBank(
-        name=food_bank_form.name.data,
-        capacity=food_bank_form.capacity.data,
-        location=food_bank_form.location.data,
-        contact_phone=food_bank_form.contact_phone.data
-    )
-    db.session.add(food_bank)
-    db.session.commit()
-
-
-def add_mental_health(mental_health_form):
-    mental_health = MentalHealthFacility(
-        name=mental_health_form.name.data,
-        specialization=mental_health_form.specialization.data,
-        location=mental_health_form.location.data,
-        contact_phone=mental_health_form.contact_phone.data
-    )
-    db.session.add(mental_health)
-    db.session.commit()
     
 @app.route('/')
 def index():
@@ -117,26 +93,23 @@ def dashboard():
 
     return render_template('dashboard.html', user_count=user_count)
 
-@app.route('/shelters')
-def shelters():
-    # Retrieve shelter names from the database
-    shelter_names = Shelter.query.with_entities(Shelter.name).all()
+@app.route('/resources')
+def resources():
+    resources = Resource.query.all()
+    return render_template('resources.html', resources=resources)
 
-    return render_template('shelters.html', shelter_names=shelter_names)
+@app.route('/delete/<int:data_id>', methods=['POST'])
+def delete_data(data_id):
+    # Logic to delete the data with the given ID
+    resource = Resource.query.get(data_id)
+    if resource:
+        db.session.delete(resource)
+        db.session.commit()
+        flash('Resource deleted successfully', 'success')
+    else:
+        flash('Resource not found', 'error')
 
-@app.route('/food_banks')
-def food_banks():
-    # Retrieve food bank names from the database
-    food_banks = FoodBank.query.all()
-
-    return render_template('food_banks.html', food_banks=food_banks)
-
-@app.route('/mental_health')
-def mental_health():
-    # Retrieve mental health facilities (replace with real data retrieval logic)
-    mental_health_facilities = MentalHealthFacility.query.all()
-
-    return render_template('mental_health.html', mental_health_facilities=mental_health_facilities)
+    return redirect(url_for('admin'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

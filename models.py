@@ -4,23 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class Shelter(db.Model):
-    shelter_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
+class Resource(db.Model):
+    __tablename__ = 'resource'
+    id = db.Column(db.Integer, primary_key=True)
+    table_type = db.Column(db.Enum('shelter', 'food_bank', 'mental_health'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     capacity = db.Column(db.Integer)
-    location = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255))
     contact_phone = db.Column(db.String(20))
-
-class FoodBank(db.Model):
-    foodbank_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
-    capacity = db.Column(db.Integer)
-    location = db.Column(db.String(255), nullable=False)
-    contact_phone = db.Column(db.String(20))
-
-class MentalHealthFacility(db.Model):
-    facility_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
     specialization = db.Column(db.String(255))
-    location = db.Column(db.String(255), nullable=False)
-    contact_phone = db.Column(db.String(20))
+
+    def __repr__(self):
+        return f"<Resource(id={self.id}, name={self.name}, table_type={self.table_type})>"

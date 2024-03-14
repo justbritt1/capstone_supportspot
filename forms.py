@@ -1,24 +1,14 @@
 # forms.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField
+from wtforms import StringField, IntegerField, SubmitField, SelectField
+from wtforms.validators import DataRequired
 
-class ShelterForm(FlaskForm):
-    name = StringField('Shelter Name')
-    capacity = IntegerField('Capacity')
-    location = StringField('Location')
-    contact_phone = StringField('Contact Phone')
-    submit = SubmitField('Add Shelter')
-
-class FoodBankForm(FlaskForm):
-    name = StringField('Food Bank Name')
-    capacity = IntegerField('Capacity')
-    location = StringField('Location')
-    contact_phone = StringField('Contact Phone')
-    submit = SubmitField('Add Food Bank')
-
-class MentalHealthForm(FlaskForm):
-    name = StringField('Mental Health Facility Name')
+    
+class AddDataForm(FlaskForm):
+    table_type = SelectField('Table Type', choices=[('shelter', 'Shelter'), ('food_bank', 'Food Bank'), ('mental_health', 'Mental Health')])
+    name = StringField('Name', validators=[DataRequired()])
+    capacity = IntegerField('Capacity', validators=[DataRequired()])
+    location = StringField('Location', validators=[DataRequired()])
+    contact_phone = StringField('Contact Phone', validators=[DataRequired()])
     specialization = StringField('Specialization')
-    location = StringField('Location')
-    contact_phone = StringField('Contact Phone')
-    submit = SubmitField('Add Mental Health Facility')
+    submit = SubmitField('Add')
