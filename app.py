@@ -1,12 +1,21 @@
+'''
+Support Spot Web App
+By: Brittany and Justin
+"2024"
+'''
 
 # Imports
 from flask import Flask, render_template, request, redirect, url_for, flash 
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from forms import AddDataForm
 from models import db, Resource
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 
 app = Flask(__name__)
+
 
 # MySQL workbench credentials
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:password1993@localhost/resourcelocator'
@@ -16,13 +25,14 @@ app.config['SECRET_KEY'] = '1993'
 # Initialize the database with app
 db.init_app(app)
 migrate = Migrate(app, db)
+  
+
         
 @app.before_request
 def create_tables():
     # The following line will remove this handler, making it
     # only run on the first request
     app.before_request_funcs[None].remove(create_tables)
-
     # Initialize the database with the app context
     with app.app_context():
         db.create_all()
@@ -65,6 +75,8 @@ def admin():
 def index():
     return render_template('login.html')
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -83,34 +95,64 @@ def login():
 
     return render_template('login.html')
 
+# Dashboard
 @app.route('/dashboard')
 def dashboard():
-    # Simulate data for the dashboard (replace with real data retrieval logic)
-    user_count = len(users)  # Assuming 'users' is a list of registered users
+    return render_template('dashboard.html')
 
-    # Additional data or logic for the dashboard
-    # ...
-
-    return render_template('dashboard.html', user_count=user_count)
-
+# Resources 
 @app.route('/resources')
 def resources():
     resources = Resource.query.all()
     return render_template('resources.html', resources=resources)
 
+@app.route('/search', methods=['POST'])
+def search():
+    # Get the ZIP code from the form
+    zip_code = request.form['zip_code']
+    
+    # Geocode the ZIP code
+    geolocator = Nominatim(user_agent="resource_locator")
+    location = geolocator.geocode(zip_code)
+    
+    if location:
+        user_coordinates = (location.latitude, location.longitude)
+        # Query the database to get all resources
+        resources = Resource.query.all()
+        
+        # Calculate distance between user and each resource
+        for resource in resources:
+            resource_coordinates = (resource.latitude, resource.longitude)
+            distance = geodesic(user_coordinates, resource_coordinates).miles
+            resource.distance = distance  # Add distance attribute to resource object
+        
+        # Sort resources by distance
+        resources_sorted = sorted(resources, key=lambda x: x.distance)
+        
+        return render_template('search_results.html', resources=resources_sorted)
+    else:
+        flash('Invalid ZIP code', 'error')
+        return redirect(url_for('resources'))
+
+# Delete button for resource data
 @app.route('/delete/<int:data_id>', methods=['POST'])
 def delete_data(data_id):
-    # Logic to delete the data with the given ID
-    resource = Resource.query.get(data_id)
-    if resource:
-        db.session.delete(resource)
-        db.session.commit()
-        flash('Resource deleted successfully', 'success')
+    # Check if the referrer is the admin page
+    if request.referrer and '/admin' in request.referrer:
+        # Logic to delete the data with the given ID
+        resource = Resource.query.get(data_id)
+        if resource:
+            db.session.delete(resource)
+            db.session.commit()
+            flash('Resource deleted successfully', 'success')
+        else:
+            flash('Resource not found', 'error')
     else:
-        flash('Resource not found', 'error')
+        flash('Unauthorized deletion attempt', 'error')
 
     return redirect(url_for('admin'))
 
+# Register page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':

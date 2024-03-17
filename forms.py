@@ -12,3 +12,6 @@ class AddDataForm(FlaskForm):
     contact_phone = StringField('Contact Phone', validators=[DataRequired()])
     specialization = StringField('Specialization')
     submit = SubmitField('Add')
+    
+
+

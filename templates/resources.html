@@ -1,28 +1,30 @@
+<!-- resources.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resources</title>
 </head>
-<body>
-    <h1>All Resources</h1>
 
+<body>
+    <h1>Resources</h1>
+
+    <!-- Search form -->
+    <form method="post" action="{{ url_for('search') }}">
+        <label for="zipcode">Enter Zipcode:</label>
+        <input type="text" id="zipcode" name="zipcode" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Display resources -->
+    <h2>Available Resources</h2>
     <ul>
         {% for resource in resources %}
-            <li>
-                {% if resource.table_type == 'shelter' %}
-                    Shelter - Name: {{ resource.name }} - Capacity: {{ resource.capacity }} - Location: {{ resource.location }} - Contact Phone: {{ resource.contact_phone }}
-                {% elif resource.table_type == 'food_bank' %}
-                    Food Bank - Name: {{ resource.name }} - Capacity: {{ resource.capacity }} - Location: {{ resource.location }} - Contact Phone: {{ resource.contact_phone }}
-                {% elif resource.table_type == 'mental_health' %}
-                    Mental Health - Name: {{ resource.name }} - Specialization: {{ resource.specialization }} - Location: {{ resource.location }} - Contact Phone: {{ resource.contact_phone }}
-                {% endif %}
-                <form method="POST" action="{{ url_for('delete_data', data_id=resource.id) }}">
-                    <button type="submit">Delete</button>
-                </form>
-            </li>
+        <li>{{ resource.name }} - {{ resource.location }}</li>
         {% endfor %}
     </ul>
 </body>
+
 </html>
