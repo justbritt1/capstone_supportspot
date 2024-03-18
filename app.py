@@ -101,38 +101,49 @@ def dashboard():
     return render_template('dashboard.html')
 
 # Resources 
-@app.route('/resources')
+@app.route('/resources', methods=['GET', 'POST'])
 def resources():
+    if request.method == 'POST':
+        # Handle the form submission for zip code search
+        zip_code = request.form.get('zip_code')
+        # Perform zip code search logic...
+        return redirect(url_for('search'))
+
+    # For GET requests, render the resources page as usual
     resources = Resource.query.all()
     return render_template('resources.html', resources=resources)
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
-    # Get the ZIP code from the form
-    zip_code = request.form['zip_code']
+    if request.method == 'POST':
+        # Get the ZIP code from the form
+        zip_code = request.form['zip_code']
     
-    # Geocode the ZIP code
-    geolocator = Nominatim(user_agent="resource_locator")
-    location = geolocator.geocode(zip_code)
+        # Geocode the ZIP code
+        geolocator = Nominatim(user_agent="resource_locator")
+        location = geolocator.geocode(zip_code)
     
-    if location:
-        user_coordinates = (location.latitude, location.longitude)
-        # Query the database to get all resources
-        resources = Resource.query.all()
+        if location:
+            user_coordinates = (location.latitude, location.longitude)
+            # Query the database to get all resources
+            resources = Resource.query.all()
         
-        # Calculate distance between user and each resource
-        for resource in resources:
-            resource_coordinates = (resource.latitude, resource.longitude)
-            distance = geodesic(user_coordinates, resource_coordinates).miles
-            resource.distance = distance  # Add distance attribute to resource object
+            # Calculate distance between user and each resource
+            for resource in resources:
+                resource_coordinates = (resource.latitude, resource.longitude)
+                distance = geodesic(user_coordinates, resource_coordinates).miles
+                resource.distance = distance  # Add distance attribute to resource object
         
-        # Sort resources by distance
-        resources_sorted = sorted(resources, key=lambda x: x.distance)
+            # Sort resources by distance
+            resources_sorted = sorted(resources, key=lambda x: x.distance)
         
-        return render_template('search_results.html', resources=resources_sorted)
+            return render_template('search_results.html', resources=resources_sorted)
+        else:
+            flash('Invalid ZIP code', 'error')
+            return redirect(url_for('resources'))
     else:
-        flash('Invalid ZIP code', 'error')
-        return redirect(url_for('resources'))
+        # Render the search form template
+        return render_template('search_results.html')
 
 # Delete button for resource data
 @app.route('/delete/<int:data_id>', methods=['POST'])

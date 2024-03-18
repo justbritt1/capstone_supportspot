@@ -11,10 +11,10 @@
 <body>
     <h1>Resources</h1>
 
-    <!-- Search form -->
-    <form method="post" action="{{ url_for('search') }}">
-        <label for="zipcode">Enter Zipcode:</label>
-        <input type="text" id="zipcode" name="zipcode" required>
+    <!-- Zip Code Search form -->
+    <form method="post" action="{{ url_for('resources') }}">
+        <label for="zip_code">Enter Zipcode:</label>
+        <input type="text" id="zip_code" name="zip_code" required>
         <button type="submit">Search</button>
     </form>
 
