@@ -8,9 +8,10 @@ By: Brittany and Justin
 from flask import Flask, render_template, request, redirect, url_for, flash 
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+#from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+from flask_sqlalchemy import SQLAlchemy
 from forms import AddDataForm
-from models import db, Resource
+from models import db, Resource, User
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 
@@ -22,12 +23,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:password199
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '1993'  
 
+# Configuration for the users database
+app.config['SQLALCHEMY_BINDS'] = {
+    'users': 'mysql+mysqlconnector://root:password1993@localhost/users'
+}
+
+
 # Initialize the database with app
 db.init_app(app)
 migrate = Migrate(app, db)
   
 
-        
 @app.before_request
 def create_tables():
     # The following line will remove this handler, making it
@@ -169,17 +175,33 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # Add your registration logic here
-        # For simplicity, you can just store the credentials in a list (not secure for production)
+        email = request.form['email']
 
-        # Example: Store username and password in a list
-        users.append({'username': username, 'password': password})
+        # Check if the username already exists in the database
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different one.', 'error')
+            return redirect(url_for('register'))
 
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Email already exists. Please choose a different one.', 'error')
+            return redirect(url_for('register'))
+
+        # Hash the password before storing it
+        hashed_password = generate_password_hash(password)
+
+        # Create a new user instance
+        new_user = User(username=username, email=email, password_hash=hashed_password)
+
+        # Add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('login'))
 
     return render_template('register.html')
-
-users = []
 
 
 if __name__ == '__main__':
