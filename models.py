@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer, String, Float
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -22,6 +23,8 @@ class Resource(db.Model):
     location = db.Column(db.String(255))
     contact_phone = db.Column(db.String(20))
     specialization = db.Column(db.String(255))
+    latitude = db.Column(db.Float)  # New column for latitude
+    longitude = db.Column(db.Float)  # New column for longitude
 
     def __repr__(self):
         return f"<Resource(id={self.id}, name={self.name}, table_type={self.table_type})>"

@@ -17,6 +17,27 @@ from geopy.distance import geodesic
 
 app = Flask(__name__)
 
+# Function to geocode address and update database
+# Define the function for geocoding and updating the database
+def geocode_and_update():
+    with app.app_context():
+        resources_without_coordinates = Resource.query.filter_by(latitude=None, longitude=None).all()
+        geolocator = Nominatim(user_agent="resource_locator")
+        for resource in resources_without_coordinates:
+            location = geolocator.geocode(resource.location)
+            if location:
+                resource.latitude = location.latitude
+                resource.longitude = location.longitude
+        db.session.commit()
+        
+geolocator = Nominatim(user_agent="resource_locator")
+location = geolocator.geocode("245 Alexander St, Fayetteville NC 28301")
+
+if location:
+    print((location.latitude, location.longitude))
+else:
+    print("Address not found")
+
 
 # MySQL workbench credentials
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:password1993@localhost/resourcelocator'
@@ -32,7 +53,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 # Initialize the database with app
 db.init_app(app)
 migrate = Migrate(app, db)
-  
+
 
 @app.before_request
 def create_tables():
@@ -143,7 +164,7 @@ def search():
             # Sort resources by distance
             resources_sorted = sorted(resources, key=lambda x: x.distance)
         
-            return render_template('search_results.html', resources=resources_sorted)
+            return render_template('search_results.html', resources=resources_sorted, search_query=zip_code)
         else:
             flash('Invalid ZIP code', 'error')
             return redirect(url_for('resources'))
