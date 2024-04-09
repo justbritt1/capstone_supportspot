@@ -5,39 +5,20 @@ By: Brittany and Justin
 '''
 
 # Imports
-from flask import Flask, render_template, request, redirect, url_for, flash 
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 #from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from forms import AddDataForm
 from models import db, Resource, User
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
+from geopy.exc import GeocoderTimedOut
+
 
 app = Flask(__name__)
-
-# Function to geocode address and update database
-# Define the function for geocoding and updating the database
-def geocode_and_update():
-    with app.app_context():
-        resources_without_coordinates = Resource.query.filter_by(latitude=None, longitude=None).all()
-        geolocator = Nominatim(user_agent="resource_locator")
-        for resource in resources_without_coordinates:
-            location = geolocator.geocode(resource.location)
-            if location:
-                resource.latitude = location.latitude
-                resource.longitude = location.longitude
-        db.session.commit()
-        
-geolocator = Nominatim(user_agent="resource_locator")
-location = geolocator.geocode("245 Alexander St, Fayetteville NC 28301")
-
-if location:
-    print((location.latitude, location.longitude))
-else:
-    print("Address not found")
-
 
 # MySQL workbench credentials
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:password1993@localhost/resourcelocator'
@@ -54,6 +35,34 @@ app.config['SQLALCHEMY_BINDS'] = {
 db.init_app(app)
 migrate = Migrate(app, db)
 
+def create_app():
+    # Call geocode_and_update() function within the application context
+    with app.app_context():
+        geocode_and_update()
+
+# Function to geocode address and update database
+# Define the function for geocoding and updating the database
+def geocode_and_update():
+    print("Inside geocode_and_update")
+    resources_without_coordinates = Resource.query.filter_by(latitude=None, longitude=None).all()
+    geolocator = Nominatim(user_agent="resource_locator")
+
+    # Increase timeout to 10 seconds (adjust as needed)
+    timeout = 10  
+
+    for resource in resources_without_coordinates:
+        try:
+            location = geolocator.geocode(resource.location, timeout=timeout)
+            if location:
+                print(f"Geocoded location for {resource.name}: {location.latitude}, {location.longitude}")
+                resource.latitude = location.latitude
+                resource.longitude = location.longitude
+        except GeocoderTimedOut:
+            print(f"Geocoding request timed out for {resource.name}")
+            continue
+
+    db.session.commit()
+create_app()
 
 @app.before_request
 def create_tables():
@@ -139,7 +148,7 @@ def resources():
     # For GET requests, render the resources page as usual
     resources = Resource.query.all()
     return render_template('resources.html', resources=resources)
-
+"""
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
@@ -156,6 +165,38 @@ def search():
             resources = Resource.query.all()
         
             # Calculate distance between user and each resource
+            for resource in resources:
+                resource_coordinates = (resource.latitude, resource.longitude)
+                distance = geodesic(user_coordinates, resource_coordinates).miles
+                resource.distance = distance  # Add distance attribute to resource object
+        
+            # Sort resources by distance
+            resources_sorted = sorted(resources, key=lambda x: x.distance)
+        
+            return render_template('search_results.html', resources=resources_sorted, search_query=zip_code)
+        else:
+            flash('Invalid ZIP code', 'error')
+            return redirect(url_for('resources'))
+    else:
+        # Render the search form template
+        return render_template('search_results.html')
+""" 
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        # Get the ZIP code from the form
+        zip_code = request.form['zip_code']
+    
+        # Geocode the ZIP code
+        geolocator = Nominatim(user_agent="resource_locator")
+        location = geolocator.geocode(zip_code)
+    
+        if location:
+            user_coordinates = (location.latitude, location.longitude)
+            # Query the database to get all resources
+            resources = Resource.query.all()
+        
+            # Calculate distance between user's location and each resource
             for resource in resources:
                 resource_coordinates = (resource.latitude, resource.longitude)
                 distance = geodesic(user_coordinates, resource_coordinates).miles
