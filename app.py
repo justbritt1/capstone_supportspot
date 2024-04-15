@@ -5,11 +5,10 @@ By: Brittany and Justin
 '''
 
 # Imports
-from flask import Flask, render_template, request, redirect, url_for, flash, current_app
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 #from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from forms import AddDataForm
 from models import db, Resource, User
@@ -148,70 +147,29 @@ def resources():
     # For GET requests, render the resources page as usual
     resources = Resource.query.all()
     return render_template('resources.html', resources=resources)
-"""
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        # Get the ZIP code from the form
-        zip_code = request.form['zip_code']
-    
-        # Geocode the ZIP code
-        geolocator = Nominatim(user_agent="resource_locator")
-        location = geolocator.geocode(zip_code)
-    
-        if location:
-            user_coordinates = (location.latitude, location.longitude)
-            # Query the database to get all resources
-            resources = Resource.query.all()
-        
-            # Calculate distance between user and each resource
-            for resource in resources:
-                resource_coordinates = (resource.latitude, resource.longitude)
-                distance = geodesic(user_coordinates, resource_coordinates).miles
-                resource.distance = distance  # Add distance attribute to resource object
-        
-            # Sort resources by distance
-            resources_sorted = sorted(resources, key=lambda x: x.distance)
-        
-            return render_template('search_results.html', resources=resources_sorted, search_query=zip_code)
-        else:
-            flash('Invalid ZIP code', 'error')
-            return redirect(url_for('resources'))
-    else:
-        # Render the search form template
-        return render_template('search_results.html')
-""" 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        # Get the ZIP code from the form
-        zip_code = request.form['zip_code']
-    
-        # Geocode the ZIP code
-        geolocator = Nominatim(user_agent="resource_locator")
-        location = geolocator.geocode(zip_code)
-    
-        if location:
-            user_coordinates = (location.latitude, location.longitude)
-            # Query the database to get all resources
-            resources = Resource.query.all()
-        
-            # Calculate distance between user's location and each resource
-            for resource in resources:
-                resource_coordinates = (resource.latitude, resource.longitude)
-                distance = geodesic(user_coordinates, resource_coordinates).miles
-                resource.distance = distance  # Add distance attribute to resource object
-        
-            # Sort resources by distance
-            resources_sorted = sorted(resources, key=lambda x: x.distance)
-        
-            return render_template('search_results.html', resources=resources_sorted, search_query=zip_code)
-        else:
-            flash('Invalid ZIP code', 'error')
-            return redirect(url_for('resources'))
-    else:
-        # Render the search form template
-        return render_template('search_results.html')
+
+# Map of NC
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
+# API route to get a list of all resources
+@app.route('/api/resources')
+def get_resources():
+    # Query the database to retrieve all Resource objects
+    resources = Resource.query.all()
+    resources_list = []
+    # Iterate through each resource object retrieved from the database
+    for resource in resources:
+        resources_list.append({
+            'name': resource.name,
+            'address': resource.location,
+            'latitude': resource.latitude,
+            'longitude': resource.longitude,
+            'contact': resource.contact_phone  
+        })
+    # Return the list of resources as JSON  
+    return jsonify(resources_list)
 
 # Delete button for resource data
 @app.route('/delete/<int:data_id>', methods=['POST'])

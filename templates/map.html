@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>Resource Map</title>
+    <!-- Link to Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;  /* Height of the map */
+            width: 100%;  /* Width of the map */
+        }
+    </style>
+</head>
+<body>
+    <h1>Resource Map</h1>
+
+    <!-- link to go back to the dashboard -->
+    <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+
+    <div id="map"></div>
+
+    <!-- Link to Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([35.7596, -79.0193], 8);  // Set view to the center of North Carolina
+
+        // Add a tile layer to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Function to load resources from the server
+        function loadResources() {
+            fetch('/api/resources')
+        .then(response => {
+            // Check for successful response
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();  // Parse JSON if successful
+        })
+        .then(data => {
+            // Iterate through each resource
+            data.forEach(resource => {
+                // Ensure that latitude and longitude are defined
+                if (resource.latitude !== null && resource.longitude !== null) {
+                    // Add a marker for each resource
+                    L.marker([resource.latitude, resource.longitude])
+                        .addTo(map)
+                        .bindPopup(`<strong>${resource.name}</strong><br>${resource.address}<br>Contact: ${resource.contact}`);
+                } else {
+                    console.warn(`Skipping resource '${resource.name}' due to missing coordinates`);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching resources:', error);
+            // You might want to display a user-friendly error message here
+            alert('An error occurred while fetching resources. Please try again later.');
+        });
+}
+
+        // Load resources when the page loads
+        loadResources();
+    </script>
+</body>
+</html>
