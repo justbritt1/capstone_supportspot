@@ -1,26 +1,48 @@
 <!-- register.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Support Spot</title>
-    <!-- Add your styles or link to external stylesheets here -->
+    <!-- Link to your CSS styles here -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <form method="post" action="{{ url_for('register') }}">
-        <h1>Register for Support Spot</h1>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        
-        <label for="email">Email:</label> <!-- Add email input field -->
-        <input type="email" id="email" name="email" required>
 
-        <input type="submit" value="Register">
+<body>
+    <h1>Register for Support Spot</h1>
+    <!-- Registration form -->
+    <form method="post" action="{{ url_for('register') }}">
+        <!-- CSRF token field (for security) -->
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            {{ form.username(class_='form-control') }}
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            {{ form.password(class_='form-control') }}
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            {{ form.email(class_='form-control') }}
+        </div>
+
+        <input type="submit" value="Register" class="btn btn-primary">
     </form>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 </body>
 </html>

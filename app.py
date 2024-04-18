@@ -7,10 +7,9 @@ By: Brittany and Justin
 # Imports
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_migrate import Migrate
-from werkzeug.security import generate_password_hash
-#from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
-from sqlalchemy import or_
-from forms import AddDataForm
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from forms import AddDataForm, RegistrationForm, LoginForm
 from models import db, Resource, User
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
@@ -29,9 +28,17 @@ app.config['SQLALCHEMY_BINDS'] = {
     'users': 'mysql+mysqlconnector://root:password1993@localhost/users'
 }
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Initialize the database with app
 db.init_app(app)
+# Initialize Flask-Migrate
 migrate = Migrate(app, db)
 
 def create_app():
@@ -108,27 +115,35 @@ def admin():
     
 @app.route('/')
 def index():
-    return render_template('login.html')
+    form = LoginForm()
+
+    return render_template('login.html', form=form)
 
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        # Add your authentication logic here
-        # For simplicity, you can just check hardcoded credentials
+    form = LoginForm()  # Create an instance of the login form
 
-        # Example: Check if username is 'admin' and password is 'password'
-        if username == 'admin' and password == 'password':
-            return redirect(url_for('dashboard'))  # Redirect to the dashboard after successful login
+    if form.validate_on_submit():
+        # Retrieve form data
+        username = form.username.data
+        password = form.password.data
+
+        # Query the database for the user
+        user = User.query.filter_by(username=username).first()
+
+        # Check if user exists and password is correct
+        if user and check_password_hash(user.password_hash, password):
+            # Log the user in using Flask-Login 
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard'))  # Redirect to the user's dashboard
+
         else:
-            error = 'Invalid credentials. Please try again.'
-
-        return render_template('login.html', error=error)
-
-    return render_template('login.html')
+            flash('Invalid username or password.', 'error')
+    # Render the login page with the form
+    return render_template('login.html', form=form)
 
 # Dashboard
 @app.route('/dashboard')
@@ -192,10 +207,13 @@ def delete_data(data_id):
 # Register page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
+    form = RegistrationForm()  # Create an instance of the form
+
+    if form.validate_on_submit():
+        # Retrieve form data
+        username = form.username.data
+        password = form.password.data
+        email = form.email.data
 
         # Check if the username already exists in the database
         existing_user = User.query.filter_by(username=username).first()
@@ -221,7 +239,7 @@ def register():
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('login'))
 
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 
 if __name__ == '__main__':
