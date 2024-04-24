@@ -1,26 +1,91 @@
 <!-- resources.html -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resources</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-top: 40px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
-
 <body>
-    <h1>Resources</h1>
-    <!-- link to go back to the dashboard -->
-    <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
-    
+    <div class="container">
+        <h1>Resources</h1>
 
-    <!-- Display resources -->
-    <h2>Available Resources</h2>
-    <ul>
-        {% for resource in resources %}
-        <li>{{ resource.name }} - {{ resource.location }}</li>
-        {% endfor %}
-    </ul>
+        <div>
+            <h2>Shelters</h2>
+            <ul>
+                {% for resource in shelters %}
+                    <li>{{ resource.name }} - {{ resource.location }} - Contact: {{ resource.contact_phone }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div>
+            <h2>Food Banks</h2>
+            <ul>
+                {% for resource in food_banks %}
+                    <li>{{ resource.name }} - {{ resource.location }} - Contact: {{ resource.contact_phone }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div>
+            <h2>Mental Health Facilities</h2>
+            <ul>
+                {% for resource in mental_health_facilities %}
+                    <li>{{ resource.name }} - {{ resource.location }} - Contact: {{ resource.contact_phone }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- Print button -->
+        <button onclick="window.print()">Print</button>
+        <!-- link to go back to the dashboard -->
+        <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+    </div>
 </body>
-
 </html>

@@ -151,6 +151,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 # Resources 
+"""
 @app.route('/resources', methods=['GET', 'POST'])
 def resources():
     if request.method == 'POST':
@@ -162,6 +163,14 @@ def resources():
     # For GET requests, render the resources page as usual
     resources = Resource.query.all()
     return render_template('resources.html', resources=resources)
+    
+    """
+@app.route('/resources')
+def resources():
+    shelters = Resource.query.filter_by(table_type='shelter').all()
+    food_banks = Resource.query.filter_by(table_type='food_bank').all()
+    mental_health_facilities = Resource.query.filter_by(table_type='mental_health').all()
+    return render_template('resources.html', shelters=shelters, food_banks=food_banks, mental_health_facilities=mental_health_facilities)
 
 # Map of NC
 @app.route('/map')
