@@ -54,7 +54,7 @@ def geocode_and_update():
     geolocator = Nominatim(user_agent="resource_locator")
 
     # Increase timeout to 10 seconds (adjust as needed)
-    timeout = 10  
+    timeout = 10
 
     for resource in resources_without_coordinates:
         try:
@@ -165,8 +165,30 @@ def resources():
     return render_template('resources.html', resources=resources)
     
     """
-@app.route('/resources')
+@app.route('/resources', methods=['GET', 'POST'])
 def resources():
+    if request.method == 'POST':
+        # Retrieve form data
+        name = request.form['name']
+        location = request.form['location']
+        table_type = request.form['table_type']
+
+        # Create a new resource object
+        new_resource = Resource(name=name, location=location, table_type=table_type)
+
+        try:
+            # Add the new resource to the database
+            db.session.add(new_resource)
+            db.session.commit()
+
+            # Call geocode_and_update to update the map
+            geocode_and_update(location)
+
+            flash('Resource added successfully!', 'success')
+            return redirect(url_for('resources'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Failed to add resource. Error: {}'.format(str(e)), 'error')
     shelters = Resource.query.filter_by(table_type='shelter').all()
     food_banks = Resource.query.filter_by(table_type='food_bank').all()
     mental_health_facilities = Resource.query.filter_by(table_type='mental_health').all()

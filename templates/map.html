@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Resource Map</title>
@@ -13,7 +14,7 @@
 <body>
     <h1>Resource Map</h1>
 
-    <!-- link to go back to the dashboard -->
+    <!-- Link to go back to the dashboard -->
     <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
 
     <div id="map"></div>
@@ -29,39 +30,39 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Function to load resources from the server
-        function loadResources() {
+        // Function to fetch resources from the server and add markers to the map
+        function fetchResourcesAndAddMarkers() {
             fetch('/api/resources')
-        .then(response => {
-            // Check for successful response
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();  // Parse JSON if successful
-        })
-        .then(data => {
-            // Iterate through each resource
-            data.forEach(resource => {
-                // Ensure that latitude and longitude are defined
-                if (resource.latitude !== null && resource.longitude !== null) {
-                    // Add a marker for each resource
-                    L.marker([resource.latitude, resource.longitude])
-                        .addTo(map)
-                        .bindPopup(`<strong>${resource.name}</strong><br>${resource.address}<br>Contact: ${resource.contact}`);
-                } else {
-                    console.warn(`Skipping resource '${resource.name}' due to missing coordinates`);
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching resources:', error);
-            // You might want to display a user-friendly error message here
-            alert('An error occurred while fetching resources. Please try again later.');
-        });
-}
+                .then(response => {
+                    // Check for successful response
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();  // Parse JSON if successful
+                })
+                .then(data => {
+                    // Iterate through each resource
+                    data.forEach(resource => {
+                        // Ensure that latitude and longitude are defined
+                        if (resource.latitude !== null && resource.longitude !== null) {
+                            // Add a marker for each resource
+                            L.marker([resource.latitude, resource.longitude])
+                                .addTo(map)
+                                .bindPopup(`<strong>${resource.name}</strong><br>${resource.address}<br>Contact: ${resource.contact}`);
+                        } else {
+                            console.warn(`Skipping resource '${resource.name}' due to missing coordinates`);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching resources:', error);
+                    // You might want to display a user-friendly error message here
+                    alert('An error occurred while fetching resources. Please try again later.');
+                });
+        }
 
-        // Load resources when the page loads
-        loadResources();
+        // Call fetchResourcesAndAddMarkers() when the page is loaded
+        document.addEventListener('DOMContentLoaded', fetchResourcesAndAddMarkers);
     </script>
 </body>
 </html>
